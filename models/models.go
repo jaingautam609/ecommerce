@@ -17,7 +17,6 @@ type Register struct {
 	JoinedOn time.Time
 }
 type Item struct {
-	Id      int       `json:"id"`
 	TypeId  int       `json:"typeId" db:"type_id"`
 	AddedBy int       `json:"AddedBy" db:"added_by"`
 	Name    string    `json:"name" db:"item_name"`
@@ -59,6 +58,18 @@ type Uploads struct {
 }
 type RegisterUser struct {
 	Name     string `json:"userName"`
-	Email    string `json:"userEmail"`
-	Password string `json:"password"`
+	Email    string `json:"userEmail" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+type PageInfo struct {
+	PageNo int `json:"pageNo"`
+	Limit  int `json:"limit"`
+}
+type AWSConfig struct {
+	AccessKeyID     string
+	AccessKeySecret string
+	Region          string
+	BucketName      string
+	UploadTimeout   int
+	BaseURL         string
 }

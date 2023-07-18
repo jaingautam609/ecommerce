@@ -34,14 +34,25 @@ func DeleteItem(db *sqlx.DB, itemId int) error {
 	}
 	return nil
 }
-
-func AllUsers(db *sqlx.DB) ([]models.Register, error) {
+func CountUsers(db *sqlx.DB) (int, error) {
+	var count int
+	SQL := `select count(u.user_name)
+				from users u join user_role
+				    t on u.id=t.user_id
+						where u.archive_at is null`
+	err := db.QueryRowx(SQL).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+	return count, nil
+}
+func AllUsers(db *sqlx.DB, limit int, offset int) ([]models.Register, error) {
 	var userInfo []models.Register
 	SQL := `select u.user_name,u.user_email,u.joined_at ,t.user_type
 				from users u join user_role
 				    t on u.id=t.user_id
-						where u.archive_at is null`
-	rows, err := db.Query(SQL)
+						where u.archive_at is null limit $1 offset $2`
+	rows, err := db.Query(SQL, limit, offset)
 	if err != nil {
 		return userInfo, err
 	}
@@ -55,7 +66,18 @@ func AllUsers(db *sqlx.DB) ([]models.Register, error) {
 	}
 	return userInfo, nil
 }
-func AllProducts(db *sqlx.DB) ([]models.Item, error) {
+func CountProduct(db *sqlx.DB) (int, error) {
+	var count int
+	SQL := `select count(item_name)
+				from item 
+				where archive_at is null`
+	err := db.QueryRowx(SQL).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+	return count, nil
+}
+func AllProducts(db *sqlx.DB, limit, offset int) ([]models.Item, error) {
 	var allProduct []models.Item
 	SQL := `select i.item_name,i.added_by,i.added_on,i.price,array_agg(u.url)
     AS photos  from item i
@@ -67,8 +89,8 @@ where i.archive_at is null GROUP BY
                                i.item_name,
                                i.added_by,
                                i.added_on,
-                               i.price;`
-	err := db.Select(&allProduct, SQL)
+                               i.price limit $1 offset $2;`
+	err := db.Select(&allProduct, SQL, limit, offset)
 	if err != nil {
 		return allProduct, err
 	}
@@ -99,7 +121,7 @@ func ProductById(db *sqlx.DB, id int) (models.Item, error) {
 
 	return allProduct, nil
 }
-func ProductByType(db *sqlx.DB, id int) ([]models.Item, error) {
+func ProductByType(db *sqlx.DB, id int, limit, offset int) ([]models.Item, error) {
 	var allProduct []models.Item
 	SQL := `select i.item_name,i.added_by,i.added_on,i.price,array_agg(u.url) 
     		AS photos
@@ -114,12 +136,30 @@ func ProductByType(db *sqlx.DB, id int) ([]models.Item, error) {
   				i.item_name,
   				i.added_by,
   				i.added_on,
-  				i.price;`
-	err := db.Select(&allProduct, SQL, id)
+  				i.price limit $2 offset $3;`
+	err := db.Select(&allProduct, SQL, id, limit, offset)
 	if err != nil {
 		return allProduct, err
 	}
 	return allProduct, nil
+}
+func CountProductByType(db *sqlx.DB, id int) (int, error) {
+	var count int
+	SQL := `select count(i.item_name)
+				from item_type t
+					inner join item i 
+					    on t.id=i.type_id
+					left join item_image img 
+					    on i.id=img.item_id 
+    				left join uploads u
+    				    on u.id=img.upload_id
+			where  t.id=$1 and i.archive_at is null GROUP BY
+  				i.item_name`
+	err := db.QueryRowx(SQL).Scan(&count, id)
+	if err != nil {
+		return count, err
+	}
+	return count, nil
 }
 func AddToCart(db *sqlx.DB, getItem models.Item, quantity int, cartId int, itemType string, id int) error {
 	SQL := `insert into cart_item(cart_id,item_name,item_type,quantity,item_id,price) values($1,$2,$3,$4,$5,$6)`

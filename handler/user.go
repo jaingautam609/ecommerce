@@ -7,6 +7,7 @@ import (
 	"ecommerce/database/middleware"
 	"ecommerce/models"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
@@ -51,6 +52,14 @@ func Register(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
+		})
+		return
+	}
+	validate := validator.New()
+	err = validate.Struct(info)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user not validated",
 		})
 		return
 	}

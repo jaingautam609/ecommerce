@@ -29,6 +29,6 @@ func ServerRoutes(r1 *gin.Engine) {
 		userRouter.POST("/add-to-cart/:id", handler.AddToCart)
 		userRouter.DELETE("/delete-from-cart/:id", handler.DeleteFromCart)
 		userRouter.GET("/show-cart", handler.ShowCart)
-		userRouter.DELETE("/payment", handler.Payment)
+		userRouter.POST("/payment", handler.Payment)
 	}
 }
