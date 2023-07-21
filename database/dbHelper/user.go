@@ -297,3 +297,19 @@ func ItemImage(tx *sqlx.Tx, itemId, uploadId int) error {
 	}
 	return nil
 }
+func EnterEmail(db *sqlx.DB, email string) error {
+	SQL := `insert into users(user_email,is_verified_by_email) values ($1,true)`
+	_, err := db.Exec(SQL, email)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func EnterNumber(db *sqlx.DB, number string) error {
+	SQL := `insert into users(phone_no,is_verified_by_phone) values ($1,true)`
+	_, err := db.Exec(SQL, number)
+	if err != nil {
+		return err
+	}
+	return nil
+}

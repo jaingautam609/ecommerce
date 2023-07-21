@@ -57,9 +57,10 @@ type Uploads struct {
 	Url  string `json:"url"`
 }
 type RegisterUser struct {
-	Name     string `json:"userName"`
-	Email    string `json:"userEmail" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Name        string `json:"userName" validate:"required"`
+	Email       string `json:"userEmail" `
+	PhoneNumber string `json:"phoneNumber"`
+	Password    string `json:"password" validate:"required"`
 }
 type PageInfo struct {
 	PageNo int `json:"pageNo"`
@@ -72,4 +73,18 @@ type AWSConfig struct {
 	BucketName      string
 	UploadTimeout   int
 	BaseURL         string
+}
+type EmailVerify struct {
+	Email string `json:"userEmail"`
+	Otp   string `json:"otp"`
+}
+type NumberVerify struct {
+	Number string `json:"number"`
+	Otp    string `json:"otp"`
+}
+type NumberInfo struct {
+	Number string `json:"number"`
+}
+type EmailInfo struct {
+	Email string `json:"email"`
 }

@@ -49,7 +49,7 @@ func ItemsType(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Item added successfully",
+		"message": "Item Type added successfully",
 	})
 	return
 }
@@ -508,7 +508,7 @@ func Upload(c *gin.Context) {
 		Bucket: aws.String(bucket),
 		Key:    aws.String(fileName),
 	})
-	urlStr, err := req.Presign(240 * time.Hour)
+	urlStr, err := req.Presign(24 * time.Hour)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

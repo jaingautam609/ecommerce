@@ -9,29 +9,36 @@ import (
 
 func AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("Authorization")
-		adminId, err := ValidateToken(token)
-		if err != nil {
+		userIdInterface, flag := c.Get("userId")
+		if !flag {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
+				"message": "error to get id",
 			})
 			return
 		}
-		var flag bool
-		flag, err = authentication.ValidateAdmin(database.Todo, adminId)
+
+		userId, ok := userIdInterface.(int)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "userId is not of type int",
+			})
+			return
+		}
+		var isTrue bool
+		isTrue, err := authentication.ValidateAdmin(database.Todo, userId)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"restaurants": err.Error(),
 			})
 			return
 		}
-		if flag == false {
+		if isTrue == false {
 			c.JSON(http.StatusForbidden, gin.H{
 				"message": "No access",
 			})
 			return
 		}
-		c.Set("adminId", adminId)
+		c.Set("adminId", userId)
 		c.Next()
 	}
 }

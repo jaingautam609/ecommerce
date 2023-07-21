@@ -8,18 +8,17 @@ import (
 
 func ServerRoutes(r1 *gin.Engine) {
 
+	r1.POST("/send-email", handler.SendOtpByEmail)
+	r1.POST("/verify-email", handler.VerifyEmail)
+
+	r1.POST("/send-sms", handler.SendSms)
+	r1.POST("/verify-sms", handler.VerifyNumber)
+
+	r1.POST("/user-details", handler.UserDetails)
+
 	r1.POST("/login", handler.Login)
-	r1.POST("/register", handler.Register)
-	userRouter := r1.Group("/admin")
-	userRouter.Use(middleware.AdminMiddleware())
-	{
-		userRouter.POST("/type", handler.ItemsType)
-		userRouter.POST("/items", handler.AddItems)
-		userRouter.DELETE("/item/:id", handler.DeleteItem)
-		userRouter.GET("users", handler.Users)
-		userRouter.POST("/item-image/:id", handler.Upload)
-	}
-	userRouter = r1.Group("/customer")
+
+	userRouter := r1.Group("/user")
 	userRouter.Use(middleware.AccessMiddleware())
 	{
 		userRouter.DELETE("/account", handler.DeleteAccount)
@@ -30,5 +29,15 @@ func ServerRoutes(r1 *gin.Engine) {
 		userRouter.DELETE("/delete-from-cart/:id", handler.DeleteFromCart)
 		userRouter.GET("/show-cart", handler.ShowCart)
 		userRouter.POST("/payment", handler.Payment)
+
+		adminRouter := userRouter.Group("/admin")
+		adminRouter.Use(middleware.AdminMiddleware())
+		{
+			adminRouter.POST("/type", handler.ItemsType)
+			adminRouter.POST("/items", handler.AddItems)
+			adminRouter.DELETE("/item/:id", handler.DeleteItem)
+			adminRouter.GET("/users", handler.Users)
+			adminRouter.POST("/item-image/:id", handler.Upload)
+		}
 	}
 }
